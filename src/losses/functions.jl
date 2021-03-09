@@ -505,6 +505,21 @@ function focal_loss(ŷ, y; dims=1, agg=mean, γ=2, ϵ=epseltype(ŷ))
     ŷ = ŷ .+ ϵ
     agg(sum(@. -y * (1 - ŷ)^γ * log(ŷ); dims=dims))
 end
+
+"""
+    triplet_loss(
+"""
+function triplet_loss(y, x1, x2; agg=mean, α=1, p=2)
+    for i in 1:size(y)[2]
+        push!(pdist, norm(abs(y[:, i] .- x1[:, i])))
+        push!(ndist, norm(abs(y[:, i] .- x2[:, i])))
+    end
+    # N = size(y)[2]
+    # pdist = [norm(abs(y[:, i] .- x1[:, i]), p) for i in 1:N]
+    # ndist = [norm(abs(y[:, i] .- x2[:, i]), p) for i in 1:N]
+    agg(max(pdist - ndist + α, 0))
+end
+
 ```@meta
 DocTestFilters = nothing
 ```
